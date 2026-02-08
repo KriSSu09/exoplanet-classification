@@ -1,0 +1,1000 @@
+{
+  "paths": {
+    "merged_parquet": "C:\\Users\\Cristi\\Desktop\\exoplanet-classification\\exoplanet_dataset_phase1\\phase1_merged.parquet",
+    "manifest": "C:\\Users\\Cristi\\Desktop\\exoplanet-classification\\exoplanet_dataset_phase1\\phase1_manifest.json"
+  },
+  "manifest_feature_derivation": {
+    "n_features_total": 134,
+    "n_features_from_leakage_union": 125,
+    "n_features_from_canonical_union": 9,
+    "per_mission": {
+      "k2": {
+        "n_leakage_features": 74,
+        "n_canon_created": 9
+      },
+      "kepler": {
+        "n_leakage_features": 42,
+        "n_canon_created": 8
+      },
+      "tess": {
+        "n_leakage_features": 35,
+        "n_canon_created": 8
+      }
+    }
+  },
+  "manifest_created_utc": "2026-02-08T19:38:59Z",
+  "feature_spec": {
+    "numeric_cols": [
+      "depth_frac",
+      "distance_pc",
+      "duration_hours",
+      "koi_depth",
+      "koi_depth_err1",
+      "koi_depth_err2",
+      "koi_dor",
+      "koi_duration",
+      "koi_duration_err1",
+      "koi_duration_err2",
+      "koi_eccen",
+      "koi_gmag",
+      "koi_hmag",
+      "koi_imag",
+      "koi_impact",
+      "koi_incl",
+      "koi_insol",
+      "koi_jmag",
+      "koi_kepmag",
+      "koi_kmag",
+      "koi_period",
+      "koi_period_err1",
+      "koi_period_err2",
+      "koi_prad",
+      "koi_prad_err1",
+      "koi_prad_err2",
+      "koi_rmag",
+      "koi_ror",
+      "koi_slogg",
+      "koi_slogg_err1",
+      "koi_slogg_err2",
+      "koi_sma",
+      "koi_smass",
+      "koi_smet",
+      "koi_smet_err1",
+      "koi_smet_err2",
+      "koi_srad",
+      "koi_srad_err1",
+      "koi_srad_err2",
+      "koi_srho",
+      "koi_steff",
+      "koi_steff_err1",
+      "koi_steff_err2",
+      "koi_teq",
+      "koi_zmag",
+      "period_days",
+      "pl_bmasse",
+      "pl_bmassj",
+      "pl_dens",
+      "pl_eqt",
+      "pl_imppar",
+      "pl_insol",
+      "pl_masse",
+      "pl_massj",
+      "pl_orbeccen",
+      "pl_orbincl",
+      "pl_orblper",
+      "pl_orbper",
+      "pl_orbpererr1",
+      "pl_orbpererr2",
+      "pl_orbperlim",
+      "pl_orbsmax",
+      "pl_rade",
+      "pl_radeerr1",
+      "pl_radeerr2",
+      "pl_radelim",
+      "pl_radj",
+      "pl_ratdor",
+      "pl_ratror",
+      "pl_rvamp",
+      "pl_trandep",
+      "pl_trandeperr1",
+      "pl_trandeperr2",
+      "pl_trandeplim",
+      "pl_trandur",
+      "pl_trandurerr1",
+      "pl_trandurerr2",
+      "pl_trandurh",
+      "pl_trandurherr1",
+      "pl_trandurherr2",
+      "pl_trandurhlim",
+      "planet_radius_rearth",
+      "st_age",
+      "st_dens",
+      "st_dist",
+      "st_disterr1",
+      "st_disterr2",
+      "st_distlim",
+      "st_logg",
+      "st_loggerr1",
+      "st_loggerr2",
+      "st_logglim",
+      "st_lum",
+      "st_mass",
+      "st_met",
+      "st_meterr1",
+      "st_meterr2",
+      "st_metlim",
+      "st_rad",
+      "st_raderr1",
+      "st_raderr2",
+      "st_radlim",
+      "st_radv",
+      "st_rotp",
+      "st_teff",
+      "st_tefferr1",
+      "st_tefferr2",
+      "st_tefflim",
+      "st_tmag",
+      "st_vsin",
+      "star_logg_cgs",
+      "star_metallicity_dex",
+      "star_radius_rsun",
+      "star_teff_k",
+      "sy_bmag",
+      "sy_dist",
+      "sy_disterr1",
+      "sy_disterr2",
+      "sy_gaiamag",
+      "sy_gmag",
+      "sy_hmag",
+      "sy_imag",
+      "sy_jmag",
+      "sy_kepmag",
+      "sy_kmag",
+      "sy_rmag",
+      "sy_tmag",
+      "sy_umag",
+      "sy_vmag",
+      "sy_w1mag",
+      "sy_w2mag",
+      "sy_w3mag",
+      "sy_w4mag",
+      "sy_zmag"
+    ],
+    "cat_cols": [],
+    "feature_whitelist_total": [
+      "depth_frac",
+      "distance_pc",
+      "duration_hours",
+      "koi_depth",
+      "koi_depth_err1",
+      "koi_depth_err2",
+      "koi_dor",
+      "koi_duration",
+      "koi_duration_err1",
+      "koi_duration_err2",
+      "koi_eccen",
+      "koi_gmag",
+      "koi_hmag",
+      "koi_imag",
+      "koi_impact",
+      "koi_incl",
+      "koi_insol",
+      "koi_jmag",
+      "koi_kepmag",
+      "koi_kmag",
+      "koi_period",
+      "koi_period_err1",
+      "koi_period_err2",
+      "koi_prad",
+      "koi_prad_err1",
+      "koi_prad_err2",
+      "koi_rmag",
+      "koi_ror",
+      "koi_slogg",
+      "koi_slogg_err1",
+      "koi_slogg_err2",
+      "koi_sma",
+      "koi_smass",
+      "koi_smet",
+      "koi_smet_err1",
+      "koi_smet_err2",
+      "koi_srad",
+      "koi_srad_err1",
+      "koi_srad_err2",
+      "koi_srho",
+      "koi_steff",
+      "koi_steff_err1",
+      "koi_steff_err2",
+      "koi_teq",
+      "koi_zmag",
+      "period_days",
+      "pl_bmasse",
+      "pl_bmassj",
+      "pl_dens",
+      "pl_eqt",
+      "pl_imppar",
+      "pl_insol",
+      "pl_masse",
+      "pl_massj",
+      "pl_orbeccen",
+      "pl_orbincl",
+      "pl_orblper",
+      "pl_orbper",
+      "pl_orbpererr1",
+      "pl_orbpererr2",
+      "pl_orbperlim",
+      "pl_orbsmax",
+      "pl_rade",
+      "pl_radeerr1",
+      "pl_radeerr2",
+      "pl_radelim",
+      "pl_radj",
+      "pl_ratdor",
+      "pl_ratror",
+      "pl_rvamp",
+      "pl_trandep",
+      "pl_trandeperr1",
+      "pl_trandeperr2",
+      "pl_trandeplim",
+      "pl_trandur",
+      "pl_trandurerr1",
+      "pl_trandurerr2",
+      "pl_trandurh",
+      "pl_trandurherr1",
+      "pl_trandurherr2",
+      "pl_trandurhlim",
+      "planet_radius_rearth",
+      "st_age",
+      "st_dens",
+      "st_dist",
+      "st_disterr1",
+      "st_disterr2",
+      "st_distlim",
+      "st_logg",
+      "st_loggerr1",
+      "st_loggerr2",
+      "st_logglim",
+      "st_lum",
+      "st_mass",
+      "st_met",
+      "st_meterr1",
+      "st_meterr2",
+      "st_metlim",
+      "st_rad",
+      "st_raderr1",
+      "st_raderr2",
+      "st_radlim",
+      "st_radv",
+      "st_rotp",
+      "st_teff",
+      "st_tefferr1",
+      "st_tefferr2",
+      "st_tefflim",
+      "st_tmag",
+      "st_vsin",
+      "star_logg_cgs",
+      "star_metallicity_dex",
+      "star_radius_rsun",
+      "star_teff_k",
+      "sy_bmag",
+      "sy_dist",
+      "sy_disterr1",
+      "sy_disterr2",
+      "sy_gaiamag",
+      "sy_gmag",
+      "sy_hmag",
+      "sy_imag",
+      "sy_jmag",
+      "sy_kepmag",
+      "sy_kmag",
+      "sy_rmag",
+      "sy_tmag",
+      "sy_umag",
+      "sy_vmag",
+      "sy_w1mag",
+      "sy_w2mag",
+      "sy_w3mag",
+      "sy_w4mag",
+      "sy_zmag"
+    ],
+    "feature_whitelist_present_in_parquet": [
+      "depth_frac",
+      "distance_pc",
+      "duration_hours",
+      "koi_depth",
+      "koi_depth_err1",
+      "koi_depth_err2",
+      "koi_dor",
+      "koi_duration",
+      "koi_duration_err1",
+      "koi_duration_err2",
+      "koi_eccen",
+      "koi_gmag",
+      "koi_hmag",
+      "koi_imag",
+      "koi_impact",
+      "koi_incl",
+      "koi_insol",
+      "koi_jmag",
+      "koi_kepmag",
+      "koi_kmag",
+      "koi_period",
+      "koi_period_err1",
+      "koi_period_err2",
+      "koi_prad",
+      "koi_prad_err1",
+      "koi_prad_err2",
+      "koi_rmag",
+      "koi_ror",
+      "koi_slogg",
+      "koi_slogg_err1",
+      "koi_slogg_err2",
+      "koi_sma",
+      "koi_smass",
+      "koi_smet",
+      "koi_smet_err1",
+      "koi_smet_err2",
+      "koi_srad",
+      "koi_srad_err1",
+      "koi_srad_err2",
+      "koi_srho",
+      "koi_steff",
+      "koi_steff_err1",
+      "koi_steff_err2",
+      "koi_teq",
+      "koi_zmag",
+      "period_days",
+      "pl_bmasse",
+      "pl_bmassj",
+      "pl_dens",
+      "pl_eqt",
+      "pl_imppar",
+      "pl_insol",
+      "pl_masse",
+      "pl_massj",
+      "pl_orbeccen",
+      "pl_orbincl",
+      "pl_orblper",
+      "pl_orbper",
+      "pl_orbpererr1",
+      "pl_orbpererr2",
+      "pl_orbperlim",
+      "pl_orbsmax",
+      "pl_rade",
+      "pl_radeerr1",
+      "pl_radeerr2",
+      "pl_radelim",
+      "pl_radj",
+      "pl_ratdor",
+      "pl_ratror",
+      "pl_rvamp",
+      "pl_trandep",
+      "pl_trandeperr1",
+      "pl_trandeperr2",
+      "pl_trandeplim",
+      "pl_trandur",
+      "pl_trandurerr1",
+      "pl_trandurerr2",
+      "pl_trandurh",
+      "pl_trandurherr1",
+      "pl_trandurherr2",
+      "pl_trandurhlim",
+      "planet_radius_rearth",
+      "st_age",
+      "st_dens",
+      "st_dist",
+      "st_disterr1",
+      "st_disterr2",
+      "st_distlim",
+      "st_logg",
+      "st_loggerr1",
+      "st_loggerr2",
+      "st_logglim",
+      "st_lum",
+      "st_mass",
+      "st_met",
+      "st_meterr1",
+      "st_meterr2",
+      "st_metlim",
+      "st_rad",
+      "st_raderr1",
+      "st_raderr2",
+      "st_radlim",
+      "st_radv",
+      "st_rotp",
+      "st_teff",
+      "st_tefferr1",
+      "st_tefferr2",
+      "st_tefflim",
+      "st_tmag",
+      "st_vsin",
+      "star_logg_cgs",
+      "star_metallicity_dex",
+      "star_radius_rsun",
+      "star_teff_k",
+      "sy_bmag",
+      "sy_dist",
+      "sy_disterr1",
+      "sy_disterr2",
+      "sy_gaiamag",
+      "sy_gmag",
+      "sy_hmag",
+      "sy_imag",
+      "sy_jmag",
+      "sy_kepmag",
+      "sy_kmag",
+      "sy_rmag",
+      "sy_tmag",
+      "sy_umag",
+      "sy_vmag",
+      "sy_w1mag",
+      "sy_w2mag",
+      "sy_w3mag",
+      "sy_w4mag",
+      "sy_zmag"
+    ],
+    "feature_whitelist_missing_from_parquet": []
+  },
+  "cat_vocabs": {},
+  "num_stats": {
+    "depth_frac": {
+      "mean": 0.018081382842930142,
+      "std": 0.06704281613844437
+    },
+    "distance_pc": {
+      "mean": 486.67337782059803,
+      "std": 569.0235506705637
+    },
+    "duration_hours": {
+      "mean": 4.363798770190199,
+      "std": 4.792034626054102
+    },
+    "koi_depth": {
+      "mean": 24086.84708085107,
+      "std": 84109.44800015764
+    },
+    "koi_depth_err1": {
+      "mean": 147.20508416351768,
+      "std": 5135.044515399694
+    },
+    "koi_depth_err2": {
+      "mean": -147.20508416351768,
+      "std": 5135.044515399694
+    },
+    "koi_dor": {
+      "mean": 65.5051831014468,
+      "std": 152.64371577755892
+    },
+    "koi_duration": {
+      "mean": 5.568146779411765,
+      "std": 6.165185085360917
+    },
+    "koi_duration_err1": {
+      "mean": 0.33547480075575403,
+      "std": 0.6266201561838506
+    },
+    "koi_duration_err2": {
+      "mean": -0.33547480075575403,
+      "std": 0.6266201561838506
+    },
+    "koi_eccen": {
+      "mean": 0.0,
+      "std": 1.0
+    },
+    "koi_gmag": {
+      "mean": 14.85179632666448,
+      "std": 1.496604993417023
+    },
+    "koi_hmag": {
+      "mean": 12.642596591840077,
+      "std": 1.2554882743702303
+    },
+    "koi_imag": {
+      "mean": 14.095983236514522,
+      "std": 1.2851206895867533
+    },
+    "koi_impact": {
+      "mean": 0.7580341446808511,
+      "std": 3.7118373108908447
+    },
+    "koi_incl": {
+      "mean": 82.5072301668369,
+      "std": 15.151320687730973
+    },
+    "koi_insol": {
+      "mean": 4815.4900643740475,
+      "std": 73448.27350041913
+    },
+    "koi_jmag": {
+      "mean": 13.015404063575291,
+      "std": 1.2828247212373827
+    },
+    "koi_kepmag": {
+      "mean": 14.284298414773657,
+      "std": 1.3765801736017722
+    },
+    "koi_kmag": {
+      "mean": 12.565348353268883,
+      "std": 1.2560605320644076
+    },
+    "koi_period": {
+      "mean": 61.70186281520719,
+      "std": 129.00301314634413
+    },
+    "koi_period_err1": {
+      "mean": 0.002075868241497767,
+      "std": 0.007705043163682098
+    },
+    "koi_period_err2": {
+      "mean": -0.002075868241497767,
+      "std": 0.007705043163682098
+    },
+    "koi_prad": {
+      "mean": 111.62619404255321,
+      "std": 3195.0506229462985
+    },
+    "koi_prad_err1": {
+      "mean": 20.856588936170212,
+      "std": 464.42789230585464
+    },
+    "koi_prad_err2": {
+      "mean": -33.65612255319149,
+      "std": 1144.109418752576
+    },
+    "koi_rmag": {
+      "mean": 14.241153770652707,
+      "std": 1.375073602709703
+    },
+    "koi_ror": {
+      "mean": 0.30801460868085107,
+      "std": 3.669401025381236
+    },
+    "koi_slogg": {
+      "mean": 4.3185312340425535,
+      "std": 0.4192021133271343
+    },
+    "koi_slogg_err1": {
+      "mean": 0.11948233672238497,
+      "std": 0.1320340544867547
+    },
+    "koi_slogg_err2": {
+      "mean": -0.1430456660348096,
+      "std": 0.0862505937697198
+    },
+    "koi_sma": {
+      "mean": 0.21694291063829788,
+      "std": 0.31749659443700984
+    },
+    "koi_smass": {
+      "mean": 1.0198990638297871,
+      "std": 0.3482262205888963
+    },
+    "koi_smet": {
+      "mean": -0.12749829351535838,
+      "std": 0.2868397306169576
+    },
+    "koi_smet_err1": {
+      "mean": 0.22869653524492234,
+      "std": 0.0775500922263345
+    },
+    "koi_smet_err2": {
+      "mean": -0.25193428912783755,
+      "std": 0.08573953158109159
+    },
+    "koi_srad": {
+      "mean": 1.673214978723404,
+      "std": 5.979675085481952
+    },
+    "koi_srad_err1": {
+      "mean": 0.35447561606065825,
+      "std": 0.9576370257542405
+    },
+    "koi_srad_err2": {
+      "mean": -0.387313630880579,
+      "std": 2.336326346535664
+    },
+    "koi_srho": {
+      "mean": 8.641863266135863,
+      "std": 50.94782493437281
+    },
+    "koi_steff": {
+      "mean": 5704.787914893617,
+      "std": 788.9128510215642
+    },
+    "koi_steff_err1": {
+      "mean": 144.52438393934173,
+      "std": 46.76608918325474
+    },
+    "koi_steff_err2": {
+      "mean": -161.74365613671674,
+      "std": 69.1233338161553
+    },
+    "koi_teq": {
+      "mean": 1071.8146382978723,
+      "std": 806.0003332112973
+    },
+    "koi_zmag": {
+      "mean": 14.009199685534591,
+      "std": 1.2183115316191033
+    },
+    "period_days": {
+      "mean": 40.79118931400346,
+      "std": 140.03319037964397
+    },
+    "pl_bmasse": {
+      "mean": 163.21109623820624,
+      "std": 530.2910792362727
+    },
+    "pl_bmassj": {
+      "mean": 0.5135218593406405,
+      "std": 1.6684772449081111
+    },
+    "pl_dens": {
+      "mean": 4.149095881379268,
+      "std": 4.125980010998285
+    },
+    "pl_eqt": {
+      "mean": 1275.3609032649335,
+      "std": 694.5468406051539
+    },
+    "pl_imppar": {
+      "mean": 0.47977255707762556,
+      "std": 0.2491080244596648
+    },
+    "pl_insol": {
+      "mean": 2321.976310831128,
+      "std": 11734.68981288264
+    },
+    "pl_masse": {
+      "mean": 131.79957499783197,
+      "std": 469.55058255316607
+    },
+    "pl_massj": {
+      "mean": 0.414690330522854,
+      "std": 1.4773653626077736
+    },
+    "pl_orbeccen": {
+      "mean": 0.1252257142857143,
+      "std": 0.14458008629008476
+    },
+    "pl_orbincl": {
+      "mean": 87.57674846443514,
+      "std": 6.56444337347768
+    },
+    "pl_orblper": {
+      "mean": 54.70885507246376,
+      "std": 95.02161513157931
+    },
+    "pl_orbper": {
+      "mean": 19.856570987916957,
+      "std": 147.33383814718636
+    },
+    "pl_orbpererr1": {
+      "mean": 1.3708903985674035,
+      "std": 54.241528450117826
+    },
+    "pl_orbpererr2": {
+      "mean": -0.7669826887942885,
+      "std": 29.383329850770945
+    },
+    "pl_orbperlim": {
+      "mean": 0.0,
+      "std": 1.0
+    },
+    "pl_orbsmax": {
+      "mean": 0.13282630901287554,
+      "std": 0.42150536652525994
+    },
+    "pl_rade": {
+      "mean": 10.532249609544404,
+      "std": 20.03697106835089
+    },
+    "pl_radeerr1": {
+      "mean": 1.7959284831875886,
+      "std": 8.566611996736075
+    },
+    "pl_radeerr2": {
+      "mean": -1.8396506587904484,
+      "std": 7.630458985265862
+    },
+    "pl_radelim": {
+      "mean": 0.0,
+      "std": 1.0
+    },
+    "pl_radj": {
+      "mean": 1.0191933598841771,
+      "std": 3.9974736322680604
+    },
+    "pl_ratdor": {
+      "mean": 22.302817649006624,
+      "std": 17.693827777217113
+    },
+    "pl_ratror": {
+      "mean": 0.06907781823329559,
+      "std": 0.09617365387162219
+    },
+    "pl_rvamp": {
+      "mean": 35.40486842105264,
+      "std": 72.54957406708733
+    },
+    "pl_trandep": {
+      "mean": 7049.51259919232,
+      "std": 13046.42476909701
+    },
+    "pl_trandeperr1": {
+      "mean": 686.151810562634,
+      "std": 17019.08030981882
+    },
+    "pl_trandeperr2": {
+      "mean": -686.1518087457325,
+      "std": 17019.080309891913
+    },
+    "pl_trandeplim": {
+      "mean": 0.0,
+      "std": 1.0
+    },
+    "pl_trandur": {
+      "mean": 3.345919411764711,
+      "std": 2.783712341612638
+    },
+    "pl_trandurerr1": {
+      "mean": 0.18513383742911335,
+      "std": 0.3738315125978446
+    },
+    "pl_trandurerr2": {
+      "mean": -0.21016946969697153,
+      "std": 0.35792824126170386
+    },
+    "pl_trandurh": {
+      "mean": 3.0755983025121165,
+      "std": 1.9246355107422175
+    },
+    "pl_trandurherr1": {
+      "mean": 0.38512213342809737,
+      "std": 0.9515845374201553
+    },
+    "pl_trandurherr2": {
+      "mean": -0.38512213342809737,
+      "std": 0.9515845374201553
+    },
+    "pl_trandurhlim": {
+      "mean": 0.0,
+      "std": 1.0
+    },
+    "planet_radius_rearth": {
+      "mean": 62.09288191650913,
+      "std": 2282.290314713643
+    },
+    "st_age": {
+      "mean": 5.15531375,
+      "std": 3.1965629020116912
+    },
+    "st_dens": {
+      "mean": 4.070348635169685,
+      "std": 11.801184686022102
+    },
+    "st_dist": {
+      "mean": 483.65749659674134,
+      "std": 537.3567728012421
+    },
+    "st_disterr1": {
+      "mean": 20.21083199956303,
+      "std": 128.03242202179734
+    },
+    "st_disterr2": {
+      "mean": -20.21083199956303,
+      "std": 128.03242202179734
+    },
+    "st_distlim": {
+      "mean": 0.0,
+      "std": 1.0
+    },
+    "st_logg": {
+      "mean": 4.316787514080405,
+      "std": 0.31720732456071843
+    },
+    "st_loggerr1": {
+      "mean": 0.16431612614185934,
+      "std": 0.3333769705409541
+    },
+    "st_loggerr2": {
+      "mean": -0.16443167086729288,
+      "std": 0.33334541403513474
+    },
+    "st_logglim": {
+      "mean": 0.0,
+      "std": 1.0
+    },
+    "st_lum": {
+      "mean": -0.2898085983227099,
+      "std": 1.019999143523378
+    },
+    "st_mass": {
+      "mean": 0.9091245007874015,
+      "std": 0.6341526268814385
+    },
+    "st_met": {
+      "mean": -0.06848172652671755,
+      "std": 0.23445856971455292
+    },
+    "st_meterr1": {
+      "mean": 0.12349591332046331,
+      "std": 0.09594949350894083
+    },
+    "st_meterr2": {
+      "mean": -0.12449977432432431,
+      "std": 0.09536548938985016
+    },
+    "st_metlim": {
+      "mean": 0.0,
+      "std": 1.0
+    },
+    "st_rad": {
+      "mean": 1.4151151845507821,
+      "std": 2.236564098345434
+    },
+    "st_raderr1": {
+      "mean": 0.08653105886569681,
+      "std": 0.27275308533658965
+    },
+    "st_raderr2": {
+      "mean": -0.09406648294328485,
+      "std": 0.39135001120477747
+    },
+    "st_radlim": {
+      "mean": 0.0,
+      "std": 1.0
+    },
+    "st_radv": {
+      "mean": 13.211967272727271,
+      "std": 32.704827873039655
+    },
+    "st_rotp": {
+      "mean": 17.5858,
+      "std": 7.821393026951866
+    },
+    "st_teff": {
+      "mean": 5719.88264995194,
+      "std": 1628.2706329576333
+    },
+    "st_tefferr1": {
+      "mean": 197.19000484155595,
+      "std": 531.2212323036175
+    },
+    "st_tefferr2": {
+      "mean": -196.95205456474247,
+      "std": 531.4079329596428
+    },
+    "st_tefflim": {
+      "mean": 0.0,
+      "std": 1.0
+    },
+    "st_tmag": {
+      "mean": 11.574094354455445,
+      "std": 1.6247447629804856
+    },
+    "st_vsin": {
+      "mean": 4.903770491803279,
+      "std": 9.957979742219205
+    },
+    "star_logg_cgs": {
+      "mean": 4.317716791545719,
+      "std": 0.37501616866422594
+    },
+    "star_metallicity_dex": {
+      "mean": -0.1226542018640351,
+      "std": 0.2833535357138795
+    },
+    "star_radius_rsun": {
+      "mean": 1.5446169601733077,
+      "std": 4.5219608485900755
+    },
+    "star_teff_k": {
+      "mean": 5712.23570949599,
+      "std": 1274.109662855416
+    },
+    "sy_bmag": {
+      "mean": 14.358272151898735,
+      "std": 2.1463811060860434
+    },
+    "sy_dist": {
+      "mean": 500.0138974684685,
+      "std": 692.0595127074956
+    },
+    "sy_disterr1": {
+      "mean": 37.73901437606032,
+      "std": 186.27095329268795
+    },
+    "sy_disterr2": {
+      "mean": -30.174856880301604,
+      "std": 127.04572268425666
+    },
+    "sy_gaiamag": {
+      "mean": 13.168653243816255,
+      "std": 1.8101511730640205
+    },
+    "sy_gmag": {
+      "mean": 14.776827831094051,
+      "std": 1.921698875367659
+    },
+    "sy_hmag": {
+      "mean": 11.149663471153847,
+      "std": 1.4756154266272026
+    },
+    "sy_imag": {
+      "mean": 13.662798656429944,
+      "std": 1.6852372638530637
+    },
+    "sy_jmag": {
+      "mean": 11.594784094405595,
+      "std": 1.5117500012305722
+    },
+    "sy_kepmag": {
+      "mean": 13.12870322019147,
+      "std": 1.7342671101164842
+    },
+    "sy_kmag": {
+      "mean": 11.029370635489512,
+      "std": 1.4625942855729661
+    },
+    "sy_rmag": {
+      "mean": 13.852065527831096,
+      "std": 1.7705196933781249
+    },
+    "sy_tmag": {
+      "mean": 12.53406444714038,
+      "std": 1.698025968330649
+    },
+    "sy_umag": {
+      "mean": 16.707482341650675,
+      "std": 2.117643338386013
+    },
+    "sy_vmag": {
+      "mean": 13.499016355633803,
+      "std": 1.9576687488713684
+    },
+    "sy_w1mag": {
+      "mean": 10.963507149107143,
+      "std": 1.4410109836986298
+    },
+    "sy_w2mag": {
+      "mean": 10.981439294642856,
+      "std": 1.431650906367851
+    },
+    "sy_w3mag": {
+      "mean": 10.764585350312778,
+      "std": 1.2204499927687509
+    },
+    "sy_w4mag": {
+      "mean": 8.59248171134942,
+      "std": 0.4595032472771881
+    },
+    "sy_zmag": {
+      "mean": 13.538904760076775,
+      "std": 1.0832648489266097
+    }
+  },
+  "label_map": {
+    "positive": 0,
+    "candidate": 1,
+    "negative": 2
+  },
+  "hyperparams": {
+    "seed": 42,
+    "epochs": 50,
+    "batch_size": 256,
+    "lr": 0.0003,
+    "weight_decay": 0.01,
+    "d_model": 192,
+    "n_heads": 6,
+    "n_layers": 4,
+    "dropout": 0.1,
+    "early_stop_patience": 3,
+    "early_stop_min_delta": 0.0001
+  },
+  "splits": {
+    "test_size": 0.2,
+    "val_size": 0.2,
+    "stratification": "mission::label"
+  }
+}

@@ -1,7 +1,16 @@
 """
-Phase 2.0 — Plumbing sanity baseline
+Phase 2.0 — Manifest-driven plumbing sanity baseline
+
 Train a column-token Transformer from scratch on the merged Phase 1 dataset.
 No SSL, no physics losses, no adversary.
+
+Key change vs old baseline:
+- Feature selection is driven by phase1_manifest.json:
+  features = union over missions of leakage_filter.feature_cols
+           + union over missions of canonical.created keys (the canonical column names)
+
+This guarantees we never accidentally train on Phase 1 metadata/provenance fields
+(e.g., label_source_value), which would cause leakage and perfect scores.
 
 Run:
     python train_tabular_transformer_baseline.py
@@ -11,7 +20,7 @@ import os
 import json
 import math
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Set
 
 import numpy as np
 import pandas as pd
@@ -25,49 +34,38 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix
 from tqdm import tqdm
 
-
-
 # -----------------------------
 # Project paths (relative to repo root)
 # -----------------------------
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(PROJECT_ROOT, "exoplanet_dataset_phase1")
 MERGED_PATH = os.path.join(DATA_DIR, "phase1_merged.parquet")
-
-OUTDIR = os.path.join(PROJECT_ROOT, "runs", "phase2_baseline_tabular_transformer")
-
-# Optional: also save a copy of the manifest used in Phase 1 (if present)
 MANIFEST_PATH = os.path.join(DATA_DIR, "phase1_manifest.json")
 
+OUTDIR = os.path.join(PROJECT_ROOT, "runs", "phase2_baseline_tabular_transformer_manifest")
 
 # -----------------------------
-# Column names (change here if your parquet uses different names)
+# Column names (Phase 1 schema)
 # -----------------------------
 LABEL_COL = "target_class"
 MISSION_COL = "mission"
 SUPERVISED_COL = "supervised_eligible"
 
-# 3-class mapping (consistent with Phase 1 decisions)
+# 3-class mapping (consistent with Phase 1)
 LABEL_MAP = {"positive": 0, "candidate": 1, "negative": 2}
 INV_LABEL_MAP = {v: k for k, v in LABEL_MAP.items()}
 
-# Columns to always ignore if present
-IGNORE_COLS_DEFAULT = {
-    LABEL_COL, MISSION_COL, SUPERVISED_COL,
-    "row_uid", "row_id", "source_table", "source_key",
-    "snapshot_time_utc", "dataset_version_id",
-    "y_source_col", "y_source_val", "y3",
-}
-
 # -----------------------------
-# Training hyperparams (tweak freely)
+# Training hyperparams
 # -----------------------------
-SEED = 0
-EPOCHS = 20
+SEED = 42
+EPOCHS = 50
 BATCH_SIZE = 256
 LR = 3e-4
 WEIGHT_DECAY = 1e-2
 GRAD_CLIP = 1.0
+EARLY_STOP_PATIENCE = 3
+EARLY_STOP_MIN_DELTA = 1e-4
 
 # Model size (baseline)
 D_MODEL = 192
@@ -95,16 +93,72 @@ class FeatureSpec:
     cat_vocabs: Dict[str, Dict[str, int]]  # col -> {token -> id}
 
 
-def infer_feature_types(df: pd.DataFrame, ignore_cols: set) -> Tuple[List[str], List[str]]:
-    feature_cols = [c for c in df.columns if c not in ignore_cols]
+def load_manifest(manifest_path: str) -> Dict:
+    if not os.path.exists(manifest_path):
+        raise FileNotFoundError(
+            f"Could not find Phase 1 manifest at: {manifest_path}\n"
+            "Phase 2.0 requires the manifest to select leakage-safe features."
+        )
+    with open(manifest_path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def build_feature_list_from_manifest(manifest: Dict) -> Tuple[List[str], Dict]:
+    """
+    Features are:
+      - union of per-mission leakage_filter.feature_cols
+      - union of per-mission canonical.created keys (canonical column names)
+
+    We also return a small report about counts for artifacts/debugging.
+    """
+    sources = manifest.get("sources", {})
+    if not sources:
+        raise ValueError("Manifest has no 'sources' section; cannot derive features.")
+
+    leakage_union: Set[str] = set()
+    canon_union: Set[str] = set()
+
+    per_mission_counts = {}
+
+    for m, info in sources.items():
+        leakage_cols = info.get("leakage_filter", {}).get("feature_cols", [])
+        canon_created = info.get("canonical", {}).get("created", {})  # dict canon_name -> src_col
+
+        leakage_union.update(leakage_cols)
+        canon_union.update(list(canon_created.keys()))
+
+        per_mission_counts[m] = {
+            "n_leakage_features": int(len(leakage_cols)),
+            "n_canon_created": int(len(canon_created)),
+        }
+
+    all_features = sorted(leakage_union.union(canon_union))
+
+    report = {
+        "n_features_total": int(len(all_features)),
+        "n_features_from_leakage_union": int(len(leakage_union)),
+        "n_features_from_canonical_union": int(len(canon_union)),
+        "per_mission": per_mission_counts,
+    }
+    return all_features, report
+
+
+def infer_feature_types_from_whitelist(df: pd.DataFrame, feature_whitelist: List[str]) -> Tuple[List[str], List[str]]:
+    """
+    Infer numeric vs categorical only within the given whitelist, and only if columns exist in df.
+    """
+    existing = [c for c in feature_whitelist if c in df.columns]
+
     numeric_cols, cat_cols = [], []
-    for c in feature_cols:
+    for c in existing:
         dt = df[c].dtype
         if pd.api.types.is_numeric_dtype(dt) or pd.api.types.is_bool_dtype(dt):
             numeric_cols.append(c)
         else:
             cat_cols.append(c)
-    return numeric_cols, cat_cols
+
+    # deterministic order for reproducibility
+    return sorted(numeric_cols), sorted(cat_cols)
 
 
 def build_cat_vocabs(df: pd.DataFrame, cat_cols: List[str], max_vocab: int = 50000) -> Dict[str, Dict[str, int]]:
@@ -112,7 +166,7 @@ def build_cat_vocabs(df: pd.DataFrame, cat_cols: List[str], max_vocab: int = 500
     Build vocab mapping for each categorical column.
     id=0 reserved for MISSING/UNK.
     """
-    vocabs = {}
+    vocabs: Dict[str, Dict[str, int]] = {}
     for c in cat_cols:
         series = df[c].astype("string")
         uniq = series.dropna().unique().tolist()
@@ -124,7 +178,7 @@ def build_cat_vocabs(df: pd.DataFrame, cat_cols: List[str], max_vocab: int = 500
 
 
 def compute_numeric_stats(df: pd.DataFrame, numeric_cols: List[str]) -> Dict[str, Dict[str, float]]:
-    stats = {}
+    stats: Dict[str, Dict[str, float]] = {}
     for c in numeric_cols:
         x = pd.to_numeric(df[c], errors="coerce")
         if x.notna().any():
@@ -138,6 +192,40 @@ def compute_numeric_stats(df: pd.DataFrame, numeric_cols: List[str]) -> Dict[str
     return stats
 
 
+def assert_no_leakage_columns_in_features(features: List[str]):
+    """
+    Guardrails against known Phase 1 metadata/provenance columns that must never be model inputs.
+    """
+    banned = {
+        LABEL_COL,
+        MISSION_COL,
+        SUPERVISED_COL,
+        "row_uid",
+        "label_source",
+        "label_source_value",
+        # common identifiers / provenance / timestamps (should not be used as features)
+        "kepid", "kepoi_name", "kepler_name",
+        "tid", "toi", "toidisplay", "toipfx", "ctoi_alias",
+        "pl_name", "pl_letter", "k2_name", "epic_hostname", "epic_candname", "hostname",
+        "hd_name", "hip_name", "tic_id", "gaia_dr2_id", "gaia_dr3_id",
+        "rowupdate", "release_date", "toi_created", "pl_pubdate", "releasedate", "disc_pubdate",
+        # any old aliases you previously used
+        "y_source_col", "y_source_val", "y3",
+        "source_table", "source_key",
+        "snapshot_time_utc", "dataset_version_id",
+    }
+    offenders = sorted([c for c in features if c in banned])
+    if offenders:
+        raise RuntimeError(
+            "Leakage/provenance columns found in feature list derived from manifest.\n"
+            f"Offending columns: {offenders}\n"
+            "This should never happen. Check Phase 1 manifest or feature selection logic."
+        )
+
+
+# -----------------------------
+# Dataset
+# -----------------------------
 class TabularTokenDataset(Dataset):
     def __init__(self, df: pd.DataFrame, feat: FeatureSpec, num_stats: Dict[str, Dict[str, float]]):
         self.df = df.reset_index(drop=True)
@@ -187,17 +275,20 @@ class TabularTokenDataset(Dataset):
         }
 
 
+# -----------------------------
+# Model
+# -----------------------------
 class ColumnTokenTransformer(nn.Module):
     def __init__(
-        self,
-        n_num: int,
-        cat_cardinalities: List[int],
-        d_model: int = 192,
-        n_heads: int = 6,
-        n_layers: int = 4,
-        dropout: float = 0.1,
-        n_classes: int = 3,
-        n_missions: int = 3,
+            self,
+            n_num: int,
+            cat_cardinalities: List[int],
+            d_model: int = 192,
+            n_heads: int = 6,
+            n_layers: int = 4,
+            dropout: float = 0.1,
+            n_classes: int = 3,
+            n_missions: int = 3,
     ):
         super().__init__()
         self.d_model = d_model
@@ -279,6 +370,9 @@ class ColumnTokenTransformer(nn.Module):
         return logits
 
 
+# -----------------------------
+# Evaluation
+# -----------------------------
 def evaluate(model: nn.Module, loader: DataLoader, device: str) -> Dict:
     model.eval()
     y_true, y_pred, missions = [], [], []
@@ -309,6 +403,9 @@ def evaluate(model: nn.Module, loader: DataLoader, device: str) -> Dict:
     return {"report": report, "confusion_matrix": cm.tolist(), "per_mission": per_m}
 
 
+# -----------------------------
+# Main
+# -----------------------------
 def main():
     set_seed(SEED)
     os.makedirs(OUTDIR, exist_ok=True)
@@ -316,28 +413,38 @@ def main():
     if not os.path.exists(MERGED_PATH):
         raise FileNotFoundError(f"Could not find merged parquet at: {MERGED_PATH}")
 
+    manifest = load_manifest(MANIFEST_PATH)
+
+    # Derive feature list from manifest (union leakage-safe + canonicals)
+    feature_whitelist, feat_report = build_feature_list_from_manifest(manifest)
+    assert_no_leakage_columns_in_features(feature_whitelist)
+
     print(f"Loading: {MERGED_PATH}")
     df = pd.read_parquet(MERGED_PATH)
 
     # Supervised slice
-    if SUPERVISED_COL not in df.columns:
-        raise KeyError(f"Expected column '{SUPERVISED_COL}' not found in merged parquet.")
-    df = df[df[SUPERVISED_COL] == True].copy()
+    for req in [SUPERVISED_COL, LABEL_COL, MISSION_COL]:
+        if req not in df.columns:
+            raise KeyError(f"Expected column '{req}' not found in merged parquet.")
 
-    if LABEL_COL not in df.columns:
-        raise KeyError(f"Expected column '{LABEL_COL}' not found in merged parquet.")
+    df = df[df[SUPERVISED_COL] == True].copy()
     df = df[df[LABEL_COL].isin(LABEL_MAP.keys())].copy()
 
-    if MISSION_COL not in df.columns:
-        raise KeyError(f"Expected column '{MISSION_COL}' not found in merged parquet.")
+    # Ensure whitelist columns exist; drop those not present
+    feature_whitelist_existing = [c for c in feature_whitelist if c in df.columns]
+    missing_from_parquet = [c for c in feature_whitelist if c not in df.columns]
 
-    ignore_cols = set(IGNORE_COLS_DEFAULT)
-    numeric_cols, cat_cols = infer_feature_types(df, ignore_cols)
+    numeric_cols, cat_cols = infer_feature_types_from_whitelist(df, feature_whitelist_existing)
+
+    # Final hard guardrail: absolutely ensure no known leakage columns slipped in
+    assert_no_leakage_columns_in_features(numeric_cols + cat_cols)
 
     print(f"Rows (supervised): {len(df)}")
+    print(f"Feature whitelist (manifest-derived): {len(feature_whitelist)} "
+          f"(present in parquet: {len(feature_whitelist_existing)}, missing: {len(missing_from_parquet)})")
     print(f"Numeric cols: {len(numeric_cols)} | Categorical cols: {len(cat_cols)}")
 
-    # Stratify by mission+label so the split isn't accidentally mission-skewed
+    # Stratify by mission+label to keep balanced splits
     strat = df[MISSION_COL].astype(str) + "::" + df[LABEL_COL].astype(str)
     train_df, test_df = train_test_split(df, test_size=TEST_SIZE, random_state=SEED, stratify=strat)
 
@@ -353,7 +460,8 @@ def main():
     val_ds = TabularTokenDataset(val_df, feat, num_stats)
     test_ds = TabularTokenDataset(test_df, feat, num_stats)
 
-    cat_cards = [max(v.values(), default=0) + 1 for v in cat_vocabs.values()]
+    # Preserve deterministic column/cardinality order
+    cat_cards = [max(cat_vocabs[c].values(), default=0) + 1 for c in cat_cols]
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print("Device:", device)
@@ -369,7 +477,7 @@ def main():
         n_missions=3,
     ).to(device)
 
-    # Class weights
+    # Class weights (train only)
     y_train = train_df[LABEL_COL].map(LABEL_MAP).values
     counts = np.bincount(y_train, minlength=3).astype(np.float32)
     weights = (counts.sum() / np.maximum(counts, 1.0))
@@ -386,17 +494,13 @@ def main():
 
     best_val = -1.0
     best_path = os.path.join(OUTDIR, "best_model.pt")
+    patience_left = EARLY_STOP_PATIENCE
 
     for epoch in range(1, EPOCHS + 1):
         model.train()
         losses = []
 
-        pbar = tqdm(
-            train_loader,
-            desc=f"Epoch {epoch}/{EPOCHS}",
-            leave=False,
-        )
-
+        pbar = tqdm(train_loader, desc=f"Epoch {epoch}/{EPOCHS}", leave=False)
         for batch in pbar:
             opt.zero_grad(set_to_none=True)
             logits = model(
@@ -419,24 +523,35 @@ def main():
         val_macro_f1 = val_out["report"]["macro avg"]["f1-score"]
         print(f"Epoch {epoch:02d} | train_loss={np.mean(losses):.4f} | val_macroF1={val_macro_f1:.4f}")
 
-        if val_macro_f1 > best_val:
+        improved = val_macro_f1 > best_val + EARLY_STOP_MIN_DELTA
+        if improved:
             best_val = val_macro_f1
+            patience_left = EARLY_STOP_PATIENCE
             torch.save(model.state_dict(), best_path)
+        else:
+            patience_left -= 1
+            if patience_left <= 0:
+                print(f"Early stopping triggered at epoch {epoch:02d}. Best val_macroF1={best_val:.4f}")
+                break
 
     # Save artifacts
     artifacts = {
         "paths": {
             "merged_parquet": MERGED_PATH,
-            "manifest": MANIFEST_PATH if os.path.exists(MANIFEST_PATH) else None,
+            "manifest": MANIFEST_PATH,
         },
+        "manifest_feature_derivation": feat_report,
+        "manifest_created_utc": manifest.get("created_utc"),
         "feature_spec": {
             "numeric_cols": numeric_cols,
             "cat_cols": cat_cols,
+            "feature_whitelist_total": feature_whitelist,
+            "feature_whitelist_present_in_parquet": feature_whitelist_existing,
+            "feature_whitelist_missing_from_parquet": missing_from_parquet,
         },
         "cat_vocabs": cat_vocabs,
         "num_stats": num_stats,
         "label_map": LABEL_MAP,
-        "ignore_cols": sorted(list(ignore_cols)),
         "hyperparams": {
             "seed": SEED,
             "epochs": EPOCHS,
@@ -447,16 +562,24 @@ def main():
             "n_heads": N_HEADS,
             "n_layers": N_LAYERS,
             "dropout": DROPOUT,
+            "early_stop_patience": EARLY_STOP_PATIENCE,
+            "early_stop_min_delta": EARLY_STOP_MIN_DELTA,
+        },
+        "splits": {
+            "test_size": TEST_SIZE,
+            "val_size": VAL_SIZE,
+            "stratification": "mission::label",
         },
     }
-    with open(os.path.join(OUTDIR, "artifacts.json"), "w") as f:
+
+    with open(os.path.join(OUTDIR, "artifacts.json"), "w", encoding="utf-8") as f:
         json.dump(artifacts, f, indent=2)
 
     # Final test eval
     model.load_state_dict(torch.load(best_path, map_location=device))
     test_out = evaluate(model, test_loader, device)
 
-    with open(os.path.join(OUTDIR, "test_metrics.json"), "w") as f:
+    with open(os.path.join(OUTDIR, "test_metrics.json"), "w", encoding="utf-8") as f:
         json.dump(test_out, f, indent=2)
 
     print("\n=== TEST RESULTS ===")

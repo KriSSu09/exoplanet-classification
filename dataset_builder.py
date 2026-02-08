@@ -166,7 +166,9 @@ META_ONLY_EXACT = {
 # =============================================================================
 
 DENY_EXACT = {
-    # Label sources / dispositions / vetting and close proxies
+    # -------------------------------------------------------------------------
+    # 1) Label sources / dispositions / vetting + close proxies
+    # -------------------------------------------------------------------------
     "koi_disposition",
     "koi_pdisposition",
     "koi_vet_stat",
@@ -176,36 +178,128 @@ DENY_EXACT = {
     "disposition",
     "disp_refname",
 
-    # Free-text and links
+    # -------------------------------------------------------------------------
+    # 2) Free-text and links (never model features)
+    # -------------------------------------------------------------------------
     "koi_comment",
     "koi_datalink_dvr",
     "koi_datalink_dvs",
 
-    # Used for filtering but never a feature
+    # -------------------------------------------------------------------------
+    # 3) Used for filtering only; never a feature
+    # -------------------------------------------------------------------------
     "default_flag",
 
-    # Multiplicity proxies (remove selection/prior artifacts)
+    # -------------------------------------------------------------------------
+    # 4) Multiplicity proxies (selection / prior artifacts)
+    # -------------------------------------------------------------------------
     "pl_pnum",
     "koi_tce_plnt_num",
     "sy_pnum",
     "sy_snum",
     "sy_mnum",
+    "koi_count",  # KOI-specific multiplicity proxy
+
+    # -------------------------------------------------------------------------
+    # 5) Kepler (KOI cumulative): analysis config / model-choice / coverage proxies
+    # -------------------------------------------------------------------------
+    "koi_fittype",
+    "koi_limbdark_mod",
+    "koi_trans_mod",
+    "koi_quarters",
+    "koi_num_transits",
+
+    # Kepler: pipeline/statistics that are likely near-direct vetting proxies
+    "koi_model_snr",
+    "koi_model_dof",
+    "koi_model_chisq",
+    "koi_max_sngle_ev",
+    "koi_max_mult_ev",
+    "koi_bin_oedp_sig",
+
+    # Kepler: derived LD coefficients (table/fitter-dependent; non-agnostic)
+    "koi_ldm_coeff1",
+    "koi_ldm_coeff2",
+    "koi_ldm_coeff3",
+    "koi_ldm_coeff4",
+
+    # -------------------------------------------------------------------------
+    # 6) K2 (k2pandc): provenance/coverage/status proxies
+    # -------------------------------------------------------------------------
+    "k2_campaigns",
+    "k2_campaigns_num",
+    "pl_tsystemref",
+    "soltype",
+    "pl_controv_flag",
+
+    # K2: taxonomy strings (non-agnostic categorical descriptors)
+    "st_spectype",
+    "st_metratio",
+
+    # -------------------------------------------------------------------------
+    # 7) DROP bucket: detection / discovery channel flags (shortcut risk)
+    # -------------------------------------------------------------------------
+    "tran_flag",
+    "rv_flag",
+    "ttv_flag",
+    "ptv_flag",
+    "ast_flag",
+    "ima_flag",
+    "etv_flag",
+    "micro_flag",
+    "pul_flag",
+    "cb_flag",
+    "dkin_flag",
+    "obm_flag",
+
+    # -------------------------------------------------------------------------
+    # 8) OPTIONAL bucket: sky position / tiling / indexing artifacts
+    # -------------------------------------------------------------------------
+    "ra",
+    "dec",
+    "glat",
+    "glon",
+    "elat",
+    "elon",
+    "x",
+    "y",
+    "z",
+    "htm20",
+
+    # OPTIONAL: proper motion / parallax / motion aggregates (contextual)
+    "st_pmra",
+    "st_pmdec",
+    "sy_pm",
+    "sy_pmra",
+    "sy_pmdec",
+    "sy_plx",
+
+    # OPTIONAL: epoch-like / observation-window fields (cadence/scheduling shortcuts)
+    "koi_time0",
+    "koi_time0bk",
+    "pl_tranmid",
 }
 
 DENY_REGEX = [
-    # Dispositions / vetting / FP flags
+    # -------------------------------------------------------------------------
+    # 1) Dispositions / vetting / FP flags
+    # -------------------------------------------------------------------------
     r".*dispos.*",
     r".*vet.*",
     r".*fpflag.*",
     r".*robovet.*",
     r".*autovet.*",
 
-    # Pipeline scores/metrics/probabilities (conservative)
+    # -------------------------------------------------------------------------
+    # 2) Pipeline scores/metrics/probabilities (conservative)
+    # -------------------------------------------------------------------------
     r".*score.*",
     r".*rank.*",
     r".*prob.*",
 
-    # Comments/links/provenance/publication refs
+    # -------------------------------------------------------------------------
+    # 3) Comments/links/provenance/publication refs
+    # -------------------------------------------------------------------------
     r".*comment.*",
     r".*datalink.*",
     r".*url.*",
@@ -213,13 +307,48 @@ DENY_REGEX = [
     r".*refname.*",
     r".*bibcode.*",
 
-    # "How studied is it" proxies (follow-up counts)
-    r"^pl_n.*",
+    # -------------------------------------------------------------------------
+    # 4) "How studied is it" proxies (follow-up counts)
+    #    NOTE: guard against matching 'pl_name'
+    # -------------------------------------------------------------------------
+    r"^pl_n(?!ame).*",
     r"^st_n.*",
 
-    # Discovery metadata fields (selection-prior artifacts)
+    # -------------------------------------------------------------------------
+    # 5) Discovery metadata (selection-prior artifacts)
+    # -------------------------------------------------------------------------
     r"^disc_.*",
     r"^discoverymethod$",
+
+    # -------------------------------------------------------------------------
+    # 6) Kepler pixel-vetting statistic families (mission/pipeline-specific)
+    # -------------------------------------------------------------------------
+    r"^koi_fwm_.*",
+    r"^koi_dicco_.*",
+    r"^koi_dikco_.*",
+
+    # -------------------------------------------------------------------------
+    # 7) Modeling/configuration meta (future-proof; redundant with DENY_EXACT but ok)
+    # -------------------------------------------------------------------------
+    r".*tsystemref.*",
+
+    # -------------------------------------------------------------------------
+    # 8) Any flag-style columns (future-proof; complements explicit flag names)
+    # -------------------------------------------------------------------------
+    r".*_flag$",
+    r"^flag$",
+
+    # -------------------------------------------------------------------------
+    # 9) Coordinates / indexing families (future-proof)
+    # -------------------------------------------------------------------------
+    r"^htm\d+$",
+
+    # -------------------------------------------------------------------------
+    # 10) Transit epoch / mid-transit time family (future-proof)
+    # -------------------------------------------------------------------------
+    r"^pl_tranmid$",
+    r"^koi_time0$",
+    r"^koi_time0bk$",
 ]
 
 _DENY_RE = [re.compile(p, flags=re.IGNORECASE) for p in DENY_REGEX]
@@ -280,8 +409,8 @@ def _is_stringified_numeric(col: str) -> bool:
 
 UNC_BASE_ALLOWLIST = {
     # Orbital / transit
-    "koi_period", "koi_time0bk", "koi_time0", "koi_duration", "koi_depth",
-    "pl_orbper", "pl_tranmid", "pl_trandurh", "pl_trandur", "pl_trandep",
+    "koi_period", "koi_duration", "koi_depth",
+    "pl_orbper", "pl_trandurh", "pl_trandur", "pl_trandep",
 
     # Radii
     "koi_prad", "koi_srad",
@@ -325,7 +454,6 @@ def _is_allowed_unc_col(col: str) -> bool:
 CANONICAL_MAP = {
     "period_days": [("kepler", "koi_period"), ("tess", "pl_orbper"), ("k2", "pl_orbper")],
     "duration_hours": [("kepler", "koi_duration"), ("tess", "pl_trandurh"), ("k2", "pl_trandur")],
-    "epoch_days": [("kepler", "koi_time0bk"), ("tess", "pl_tranmid"), ("k2", "pl_tranmid")],
     "depth_frac": [("kepler", "koi_depth"), ("tess", "pl_trandep"), ("k2", "pl_trandep")],
     "planet_radius_rearth": [("kepler", "koi_prad"), ("tess", "pl_rade"), ("k2", "pl_rade")],
     "star_radius_rsun": [("kepler", "koi_srad"), ("tess", "st_rad"), ("k2", "st_rad")],
@@ -567,6 +695,10 @@ def split_roles_and_filter_columns(df: pd.DataFrame, mission: str) -> Tuple[pd.D
         kept_cols.append(c)
         feature_cols.append(c)
 
+    for c in feature_cols:
+        if _should_drop(c):
+            raise RuntimeError(f"Leakage filter bug: denied column made it into features: {c}")
+
     filtered = out[kept_cols].copy()
     report = {
         "mission": mission,
@@ -725,7 +857,7 @@ def build_feature_families(columns: Sequence[str], dtypes: Dict[str, Any]) -> Di
             continue
 
         # canonical physics
-        if lc in {"period_days", "duration_hours", "epoch_days"}:
+        if lc in {"period_days", "duration_hours"}:
             fams["canonical_orbital"].append(c)
             continue
         if lc in {"depth_frac", "planet_radius_rearth"}:
@@ -895,7 +1027,7 @@ if __name__ == "__main__":
         out_dir="./exoplanet_dataset_phase1",
         request_timeout_s=180,
         max_rows_per_table=None,
-        sleep_s_between_calls=0.10,
+        sleep_s_between_calls=0.05,
         parquet_engine="pyarrow",
         parquet_compression="zstd",
         high_missingness_threshold=0.98,
